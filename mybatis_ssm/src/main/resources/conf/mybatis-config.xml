@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--
+        settings包含很多重要的设置项
+        setting用来设置每一个设置项
+    -->
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <!-- 开启自动驼峰命名规则映射 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+<!--        <setting name="jdbcTypeForNull" value="NULL"/>-->
+        <!-- 延迟加载 -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--开启全局二级缓存配置-->
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+
+    <!-- databaseIdProvider:支持多数据库厂商 -->
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL Server" value="sqlserver"/>
+    </databaseIdProvider>
+
+</configuration>

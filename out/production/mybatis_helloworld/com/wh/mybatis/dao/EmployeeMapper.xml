@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wh.mybatis.dao.EmployeeMapper">
+
+<!--    查询-->
+    <select id="getEmpById" resultType="emp" databaseId="mysql">
+        select * from emp where id = #{id}
+    </select>
+
+    <select id="getEmpById" resultType="emp" databaseId="oracle">
+        select * from emp where id = #{id}
+    </select>
+
+<!--    插入-->
+    <insert id="addEmp" parameterType="com.wh.mybatis.bean.Employee"
+        useGeneratedKeys="true" keyProperty="id">
+        insert into emp(name,age,sex) values(#{name},#{age},#{sex})
+    </insert>
+
+<!--    修改-->
+    <update id="updateEmp">
+        update emp set name = #{name},age=#{age},sex=#{sex} where id=#{id}
+    </update>
+
+<!--    删除-->
+    <delete id="deleteEmp">
+        delete from emp where id = #{id}
+    </delete>
+
+<!--    批量查询生成list集合-->
+    <select id="getEmpsForList" resultType="com.wh.mybatis.bean.Employee">
+        select * from emp where name like #{name}
+    </select>
+
+<!--    查询一条记录生成Map-->
+    <select id="getEmpForMap" resultType="map">
+        select * from emp where id = #{id}
+    </select>
+
+<!--    批量查询生成Map集合-->
+    <select id="getEmpsForMap" resultType="com.wh.mybatis.bean.Employee">
+        select * from emp where name like #{name}
+    </select>
+
+
+</mapper>

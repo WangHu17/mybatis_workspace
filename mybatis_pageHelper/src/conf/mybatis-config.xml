@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!-- 引入外部properties -->
+    <properties resource="conf/dbconfig.properties"></properties>
+
+    <!--
+        settings包含很多重要的设置项
+        setting用来设置每一个设置项
+    -->
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <!-- 开启自动驼峰命名规则映射 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+<!--        <setting name="jdbcTypeForNull" value="NULL"/>-->
+        <!-- 延迟加载 -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--开启全局二级缓存配置-->
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+
+    <!-- 别名处理器 -->
+    <typeAliases>
+        <!--
+            type:指定要起别名的类型全类名；默认别名就是类名小写
+            alias：指定新的别名
+        -->
+        <typeAlias type="com.wh.mybatis.bean.Employee" alias="emp"></typeAlias>
+        <!--
+            package:为某个包下的所有类批量起一个默认别名（类名小写），包括该包下及后代包的所有类
+        -->
+        <package name="com.wh.mybatis.bean"/>
+        <!--批量起别名的情况下，只有@Alias注解为某个类指定新的别名-->
+    </typeAliases>
+
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+    </plugins>
+
+    <!-- environments:可以配置多个环境 -->
+    <environments default="mysql">
+        <environment id="mysql">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+
+        <environment id="oracle">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${oracle.driver}"/>
+                <property name="url" value="${oracle.url}"/>
+                <property name="username" value="${oracle.username}"/>
+                <property name="password" value="${oracle.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- databaseIdProvider:支持多数据库厂商 -->
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL Server" value="sqlserver"/>
+    </databaseIdProvider>
+
+    <mappers>
+<!--        <mapper resource="conf/EmployeeMapper.xml"/>-->
+<!--        <mapper class="com.wh.mybatis.dao.EmployeeMapperAnnotation"/>-->
+        <!--批量注册-->
+        <package name="com.wh.mybatis.dao"/>
+    </mappers>
+
+</configuration>

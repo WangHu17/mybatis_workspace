@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                            http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd">
+
+<!--    数据源-->
+    <context:property-placeholder location="classpath:conf/db.properties"/>
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+    </bean>
+    
+<!--    事务管理器-->
+    <bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+<!--    基于注解的事务管理器-->
+    <tx:annotation-driven transaction-manager="dataSourceTransactionManager"/>
+
+<!--    spring自动创建sqlSessionFactoryBean(集成MP)
+        mybatis的sqlSessionFactoryBean：org.mybatis.spring.SqlSessionFactoryBean
+-->
+    <bean id="sqlSessionFactoryBean" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:conf/mybatis-config.xml"/>
+<!--    注入MyBatis全局配置-->
+        <property name="globalConfig" ref="globalConfig"/>
+<!--    注入MybatisPlus插件-->
+        <property name="plugins" ref="mybatisPlusInterceptor"/>
+    </bean>
+
+<!--    MyBatisPlus全局策略配置-->
+    <bean id="globalConfig" class="com.baomidou.mybatisplus.core.config.GlobalConfig">
+        <property name="dbConfig" ref="dbConfig"/>
+    </bean>
+    <bean id="dbConfig" class="com.baomidou.mybatisplus.core.config.GlobalConfig$DbConfig">
+<!--        配置id自增-->
+        <property name="idType" value="AUTO"/>
+<!--        配置数据库表名前缀-->
+        <property name="tablePrefix" value="tbl_"/>
+<!--        配置逻辑删除-->
+        <property name="logicDeleteField" value="logicDel"/>
+        <property name="logicDeleteValue" value="-1"/>
+        <property name="logicNotDeleteValue" value="1"/>
+    </bean>
+
+
+<!--    配置MyBatis-Plus拦截器-->
+    <bean id="mybatisPlusInterceptor" class="com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor">
+        <property name="interceptors">
+            <list>
+<!--                分页插件-->
+                <bean class="com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor"/>
+<!--                防止全表更新与删除插件-->
+                <bean class="com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor"/>
+<!--                乐观锁插件-->
+                <bean class="com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor"/>
+            </list>
+        </property>
+    </bean>
+
+
+<!--    配置扫描mapper接口的路径-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.wh.mp.mapper"/>
+    </bean>
+</beans>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wh.mybatis.dao.EmployeeMapper2">
+<!--使用二级缓存-->
+<cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
+
+<!--    普通查询-->
+    <resultMap id="MyEmp1" type="com.wh.mybatis.bean.Employee">
+        <id column="id" property="id" />
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <result column="e_sex" property="sex"/>
+    </resultMap>
+
+    <select id="getEmpById" resultMap="MyEmp1">
+        select * from emp where id = #{id}
+    </select>
+
+<!--    关联查询，级联属性封装结果-->
+    <resultMap id="MyEmp2" type="com.wh.mybatis.bean.Employee">
+        <id column="e_id" property="id" />
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <result column="e_sex" property="sex"/>
+        <result column="dept_id" property="dept.id"/>
+        <result column="dept_name" property="dept.deptName"/>
+    </resultMap>
+
+<!--    关联查询，association定义关联对象封装规则 -->
+    <resultMap id="MyEmp3" type="com.wh.mybatis.bean.Employee">
+        <id column="e_id" property="id" />
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <result column="e_sex" property="sex"/>
+        <association property="dept" javaType="com.wh.mybatis.bean.Department">
+            <id column="dept_id" property="id"/>
+            <result column="dept_name" property="deptName"/>
+        </association>
+    </resultMap>
+
+    <select id="getEmpAndDeptById" resultMap="MyEmp3">
+        SELECT e.id e_id, e.e_name e_name, e.e_age e_age, e.e_sex e_sex,
+               d.id dept_id, d.dept_name dept_name
+        FROM emp e, dept d WHERE e.e_department = d.id AND e.id = #{id}
+    </select>
+
+<!--    关联查询，association分步查询
+        可以使用延迟加载（按需加载）
+-->
+    <resultMap id="MyEmp4" type="com.wh.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <association property="dept" select="com.wh.mybatis.dao.DepartmentMapper.getDeptById"
+                     column="e_department"/>
+    </resultMap>
+
+    <select id="getEmpAndDeptByIdForStep" resultMap="MyEmp5">
+        select * from emp where id = #{id}
+    </select>
+
+<!--    分步查询部门员工-->
+    <resultMap id="MyEmps" type="com.wh.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <result column="e_sex" property="sex"/>
+    </resultMap>
+    <select id="getEmpsByDeptIdForStep" resultMap="MyEmps">
+        select * from emp where e_department = #{deptId}
+    </select>
+
+<!--    鉴别器-->
+    <resultMap id="MyEmp5" type="com.wh.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <result column="e_sex" property="sex"/>
+        <discriminator javaType="int" column="e_sex">
+            <case value="0" resultType="com.wh.mybatis.bean.Employee">
+                <association property="dept" select="com.wh.mybatis.dao.DepartmentMapper.getDeptById"
+                             column="e_department"/>
+            </case>
+            <case value="1" resultType="com.wh.mybatis.bean.Employee">
+                <id column="id" property="id"/>
+                <result column="e_name" property="name"/>
+                <result column="e_age" property="age"/>
+                <result column="e_age" property="sex"/>
+            </case>
+        </discriminator>
+
+    </resultMap>
+
+</mapper>

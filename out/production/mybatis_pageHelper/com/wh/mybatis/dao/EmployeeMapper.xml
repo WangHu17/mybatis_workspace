@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wh.mybatis.dao.EmployeeMapper">
+
+    <resultMap id="MyMap" type="com.wh.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <result column="e_sex" property="sex"/>
+    </resultMap>
+
+    <select id="getEmps" resultMap="MyMap">
+        select * from emp
+    </select>
+
+    <insert id="addEmp">
+        insert into emp(id,e_name,e_age,e_sex)
+        values(#{id},#{name},#{age},#{sex})
+    </insert>
+
+
+
+</mapper>

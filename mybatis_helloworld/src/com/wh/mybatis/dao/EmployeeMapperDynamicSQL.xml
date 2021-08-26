@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wh.mybatis.dao.EmployeeMapperDynamicSQL">
+
+    <resultMap id="DynamicSQL" type="com.wh.mybatis.Employee">
+        <id column="id" property="id"/>
+        <result column="e_name" property="name"/>
+        <result column="e_age" property="age"/>
+        <result column="e_sex" property="sex"/>
+    </resultMap>
+
+<!--    where标签：自动去除条件语句前面多余的 “and”，无法去除后面的-->
+    <select id="getEmpsByDynamicSQLForWhere" resultMap="DynamicSQL">
+        select * from emp
+        <where>
+            <if test="id!=null">
+                id = #{id}
+            </if>
+            <if test="name!=null and name!=''">
+                and e_name like #{name}
+            </if>
+            <if test="age!=null">
+                and e_age=#{age}
+            </if>
+            <if test="sex!=null'">
+                and e_sex=#{sex}
+            </if>
+        </where>
+    </select>
+
+<!--    trim标签：自定义条件语句的前缀和后缀，可去除条件语句前面和后面的任意字符串-->
+    <select id="getEmpsByDynamicSQLForTrim" resultMap="DynamicSQL">
+        select * from emp
+        <trim prefix="where" suffixOverrides="and">
+            <if test="id!=null">
+                id = #{id} and
+            </if>
+            <if test="name!=null and name!=''">
+                e_name like #{name} and
+            </if>
+            <if test="age!=null">
+                e_age=#{age} and
+            </if>
+            <if test="sex!=null">
+                e_sex=#{sex}
+            </if>
+        </trim>
+    </select>
+
+<!--    choose标签：只执行其中的一条语句-->
+    <select id="getEmpsByDynamicSQLForChoose" resultMap="DynamicSQL">
+        select * from emp
+        <where>
+            <choose>
+                <when test="id!=null">
+                    id = #{id}
+                </when>
+                <when test="name!=null and name!=''">
+                    e_name like #{name}
+                </when>
+                <when test="age!=null">
+                    e_age = #{age}
+                </when>
+                <otherwise>
+                    e_sex = 0
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+<!--    set标签：可自动去除语句后面的逗号，也可以使用trim标签-->
+    <update id="updateEmpByDynamicSQLForSet">
+        update emp
+        <set>
+            <if test="name!=null and name!=''">
+                e_name = #{name},
+            </if>
+            <if test="age!=null">
+                e_age = #{age},
+            </if>
+            <if test="sex!=null">
+                e_sex = #{sex}
+            </if>
+        </set>
+<!--        <trim prefix="set" suffixOverrides=",">-->
+<!--            <if test="name!=null and name!=''">-->
+<!--                e_name = #{name},-->
+<!--            </if>-->
+<!--            <if test="age!=null">-->
+<!--                e_age = #{age},-->
+<!--            </if>-->
+<!--            <if test="sex!=null">-->
+<!--                e_sex = #{sex}-->
+<!--            </if>-->
+<!--        </trim>-->
+        where id = #{id}
+    </update>
+
+<!--    foreach标签：遍历集合-->
+    <select id="getEmpsByDynamicSQLForForeach" resultMap="DynamicSQL">
+        select * from emp
+        <foreach collection="list" item="item" separator="," open=" where id in(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+<!--    插入多条数据，方式一（推荐）-->
+    <insert id="addEmpsByDynamicSQLForeach">
+        insert into emp(
+                        <include refid="params">
+                            <property name="" value=""/>
+                        </include>
+        ) values
+        <foreach collection="emps" item="emp" separator=",">
+            (#{emp.name},#{emp.age},#{emp.sex},#{emp.dept.id})
+        </foreach>
+    </insert>
+
+<!--    插入多条数据，方式二：需数据库开启allowMultiQueries=true-->
+<!--    <insert id="addEmpsByDynamicSQLForeach">-->
+<!--        <foreach collection="emps" item="emp">-->
+<!--            insert into emp(e_name,e_age,e_sex,e_department) values-->
+<!--            (#{emp.name},#{emp.age},#{emp.sex},#{emp.dept.id});-->
+<!--        </foreach>-->
+<!--    </insert>-->
+
+<!--    抽取可重用的sql片段
+        在需要用到的地方使用<include refid=""></include>标签引用
+        include里还可以自定义property，sql标签内部可以使用这些自定义属性，采用${}的方式
+-->
+    <sql id="params">
+        e_name,e_age,e_sex,e_department
+    </sql>
+</mapper>
